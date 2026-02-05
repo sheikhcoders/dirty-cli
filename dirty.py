@@ -23,6 +23,7 @@ class Colors:
 
 DEFAULT_MODEL_URL = "https://huggingface.co/HuggingFaceTB/SmolLM2-135M/resolve/main/model.safetensors"
 DEFAULT_WORKER_URL = "http://localhost:8787"
+DEFAULT_AGENT_SERVER_URL = "http://localhost:8080"
 
 def log_info(msg):
     print(f"{Colors.BLUE}[INFO]{Colors.ENDC} {msg}")
@@ -177,6 +178,57 @@ def view_command(args):
         except Exception as e:
             log_error(f"Failed to open file: {e}")
 
+def agent_command(args):
+    url = f"{args.url}/session/create"
+    log_info(f"Creating agent session at {args.url}...")
+    try:
+        with urllib.request.urlopen(url, data=b"") as response:
+            res = json.load(response)
+            session_id = res["session_id"]
+            vnc_url = res["vnc_url"]
+            log_success(f"Session created: {Colors.BOLD}{session_id}{Colors.ENDC}")
+            log_info(f"VNC Viewer: {Colors.CYAN}{vnc_url}{Colors.ENDC}")
+
+        while True:
+            try:
+                user_msg = input(f"\n{Colors.BOLD}You > {Colors.ENDC}")
+                if user_msg.lower() in ["exit", "quit"]:
+                    break
+
+                # Send message
+                msg_url = f"{args.url}/session/{session_id}/message"
+                req_data = json.dumps({"message": user_msg}).encode()
+                req = urllib.request.Request(msg_url, data=req_data, headers={'Content-Type': 'application/json'})
+                urllib.request.urlopen(req)
+
+                # Listen for events (SSE)
+                log_info("Agent is thinking...")
+                event_url = f"{args.url}/session/{session_id}/events"
+                with urllib.request.urlopen(event_url) as event_stream:
+                    for line in event_stream:
+                        line = line.decode().strip()
+                        if line.startswith("data: "):
+                            event = json.loads(line[6:])
+                            e_type = event.get("type", "info")
+                            e_content = event.get("content", "")
+
+                            if e_type == "plan":
+                                print(f"{Colors.BLUE}[PLAN]{Colors.ENDC} {e_content}")
+                            elif e_type == "act":
+                                print(f"{Colors.CYAN}[ACT]{Colors.ENDC} {e_content}")
+                            elif e_type == "observation":
+                                print(f"{Colors.YELLOW}[OBS]{Colors.ENDC}\n{e_content}")
+                            elif e_type == "done":
+                                print(f"{Colors.GREEN}[DONE]{Colors.ENDC} {e_content}")
+                                break
+            except KeyboardInterrupt:
+                break
+            except Exception as e:
+                log_error(f"Error during conversation: {e}")
+                break
+    except Exception as e:
+        log_error(f"Failed to create session: {e}")
+
 def bootstrap_command(args):
     log_info(f"Bootstrapping sandbox {Colors.BOLD}{args.sandbox}{Colors.ENDC}...")
     # This command could pre-install common libraries in the sandbox
@@ -260,6 +312,10 @@ def main():
     view_parser.add_argument("--url", default=DEFAULT_WORKER_URL, help="Worker URL")
     view_parser.set_defaults(target=None)
 
+    # Agent Command
+    agent_parser = subparsers.add_parser("agent", aliases=["ag"], help="Start an AI Agent session")
+    agent_parser.add_argument("--url", default=DEFAULT_AGENT_SERVER_URL, help="Agent Server URL")
+
     args = parser.parse_args()
 
     # Handle aliases manually if needed, but argparse subparsers with aliases do it for us
@@ -277,6 +333,8 @@ def main():
         fetch_command(args)
     elif args.command in ["view", "v"]:
         view_command(args)
+    elif args.command in ["agent", "ag"]:
+        agent_command(args)
     else:
         parser.print_help()
 

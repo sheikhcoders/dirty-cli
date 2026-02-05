@@ -31,7 +31,8 @@ def main():
 
     # Cleanup if exists
     if os.path.exists(target_dir):
-        subprocess.run(f"rm -rf {target_dir}", shell=True)
+        import shutil
+        shutil.rmtree(target_dir)
 
     # 1. Git Clone
     clone_res = run_command(["git", "clone", repo_url, target_dir])

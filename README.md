@@ -7,6 +7,17 @@ Leverages the Cloudflare Sandbox SDK to provide two powerful, production-ready s
 
 Both services are designed for security, scalability, and ease of integration.
 
+## General-Purpose AI Agent System
+
+Dirty CLI also supports a full-blown AI Agent system running in an Ubuntu Docker environment.
+
+### Workflow
+1. **Initiate**: Web/CLI sends a request to create an Agent. The Server creates an Ubuntu Sandbox through Docker.
+2. **Conversation**: User messages are forwarded to the **PlanAct Agent**.
+3. **Processing**: The Agent calls tools (File, Shell, Browser) to complete tasks.
+4. **SSE Updates**: All events are streamed back to the user in real-time.
+5. **Graphical View**: The Sandbox starts a headless browser with VNC (xvfb/x11vnc) and converts it to WebSocket (websockify) for NoVNC/Web viewing.
+
 ## Architecture
 
 ### System Components
@@ -148,6 +159,9 @@ The `dirty.py` CLI provides a powerful interface to the edge services and includ
 
 # Viewing graphical output (Termux/Linux/macOS)
 ./dirty.py view chart.png
+
+# Agent: Start an interactive AI Agent session
+./dirty.py agent
 
 # Bootstrap: Check if sandbox is ready
 ./dirty.py bootstrap

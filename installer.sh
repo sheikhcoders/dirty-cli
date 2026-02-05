@@ -36,6 +36,14 @@ else
     echo -e "${YELLOW}! npm not found. You'll need it if you want to deploy the Cloudflare Worker.${NC}"
 fi
 
+if check_cmd docker; then
+    echo -e "${GREEN}✓ Docker is installed.${NC}"
+    echo -e "${CYAN}Building Sandbox image (agent-sandbox:latest)...${NC}"
+    docker build -t agent-sandbox:latest sandbox/
+else
+    echo -e "${YELLOW}! Docker not found. Required for the General-Purpose AI Agent System.${NC}"
+fi
+
 # 2. Permissions
 echo -e "\n${BOLD}[2/4] Setting Permissions...${NC}"
 chmod +x dirty.py
