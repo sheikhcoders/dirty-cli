@@ -146,9 +146,35 @@ The `dirty.py` CLI provides a powerful interface to the edge services and includ
 # Analysis: Run data analysis on a CSV
 ./dirty.py analyze data.csv --code "print(df.head())"
 
+# Viewing graphical output (Termux/Linux/macOS)
+./dirty.py view chart.png
+
 # Bootstrap: Check if sandbox is ready
 ./dirty.py bootstrap
 ```
+
+## Termux & Graphical Support (X11/VNC)
+
+Dirty CLI is optimized for Termux. While the edge environment is headless, you can view generated visualizations locally:
+
+### 1. Enable X11 Repository
+To access X11 packages in Termux, run:
+```bash
+pkg install x11-repo
+```
+
+### 2. View Output
+Use the `view` (or `v`) command to automatically fetch a file from the sandbox and open it with your local system's default viewer:
+```bash
+./dirty.py view my_plot.png
+```
+*In Termux, this leverages `termux-open` to pass the file to an external image viewer.*
+
+### 3. VNC Setup (Optional)
+For a full desktop experience in Termux:
+1. Install a VNC server: `pkg install tigervnc`
+2. Start the server: `vncserver`
+3. Connect using a VNC client application (e.g., VNC Viewer) to `localhost:1`.
 
 ## Quick Setup
 

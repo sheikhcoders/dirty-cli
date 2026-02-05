@@ -7,6 +7,7 @@ import sys
 import json
 import mimetypes
 import time
+import subprocess
 
 # ANSI Color Codes
 class Colors:
@@ -144,6 +145,38 @@ def setup_command(args):
     download_model(args.model_url, target)
     log_success(f"Setup finished. Model saved to {Colors.BOLD}{target}{Colors.ENDC}")
 
+def fetch_command(args):
+    url = f"{args.url}/read?sandboxId={args.sandbox}&path={urllib.parse.quote(args.path)}"
+    target = args.target or os.path.basename(args.path)
+    log_info(f"Fetching {Colors.CYAN}{args.path}{Colors.ENDC} from sandbox...")
+    try:
+        with urllib.request.urlopen(url) as response:
+            with open(target, 'wb') as f:
+                f.write(response.read())
+        log_success(f"File saved to {Colors.BOLD}{target}{Colors.ENDC}")
+        return target
+    except Exception as e:
+        log_error(f"Fetch failed: {e}")
+        return None
+
+def view_command(args):
+    local_path = fetch_command(args)
+    if local_path:
+        log_info(f"Opening {Colors.BOLD}{local_path}{Colors.ENDC}...")
+        try:
+            if sys.platform == "win32":
+                os.startfile(local_path)
+            elif sys.platform == "darwin":
+                subprocess.run(["open", local_path])
+            else:
+                # Check for termux-open first, then xdg-open
+                if subprocess.run(["which", "termux-open"], capture_output=True).returncode == 0:
+                    subprocess.run(["termux-open", local_path])
+                else:
+                    subprocess.run(["xdg-open", local_path])
+        except Exception as e:
+            log_error(f"Failed to open file: {e}")
+
 def bootstrap_command(args):
     log_info(f"Bootstrapping sandbox {Colors.BOLD}{args.sandbox}{Colors.ENDC}...")
     # This command could pre-install common libraries in the sandbox
@@ -213,6 +246,20 @@ def main():
     boot_parser.add_argument("--sandbox", default="default-sandbox", help="Sandbox ID")
     boot_parser.add_argument("--url", default=DEFAULT_WORKER_URL, help="Worker URL")
 
+    # Fetch Command
+    fetch_parser = subparsers.add_parser("fetch", aliases=["f"], help="Fetch a file from the sandbox")
+    fetch_parser.add_argument("path", help="Path to file in sandbox")
+    fetch_parser.add_argument("--target", help="Local target path")
+    fetch_parser.add_argument("--sandbox", default="default-sandbox", help="Sandbox ID")
+    fetch_parser.add_argument("--url", default=DEFAULT_WORKER_URL, help="Worker URL")
+
+    # View Command
+    view_parser = subparsers.add_parser("view", aliases=["v"], help="Fetch and view a file")
+    view_parser.add_argument("path", help="Path to file in sandbox")
+    view_parser.add_argument("--sandbox", default="default-sandbox", help="Sandbox ID")
+    view_parser.add_argument("--url", default=DEFAULT_WORKER_URL, help="Worker URL")
+    view_parser.set_defaults(target=None)
+
     args = parser.parse_args()
 
     # Handle aliases manually if needed, but argparse subparsers with aliases do it for us
@@ -226,6 +273,10 @@ def main():
         setup_command(args)
     elif args.command in ["bootstrap", "b"]:
         bootstrap_command(args)
+    elif args.command in ["fetch", "f"]:
+        fetch_command(args)
+    elif args.command in ["view", "v"]:
+        view_command(args)
     else:
         parser.print_help()
 

@@ -6,6 +6,7 @@
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 BOLD='\033[1m'
@@ -70,7 +71,15 @@ echo -e "Try: ${CYAN}./dirty.py --help${NC}"
 # Optional: Suggest adding to path
 if [[ "$OSTYPE" == "linux-android"* ]]; then
     # Termux
-    echo -e "\n${BOLD}${BLUE}Termux Tip:${NC}"
-    echo -e "To run from anywhere, move dirty.py to your bin:"
+    echo -e "\n${BOLD}${BLUE}Termux Tips:${NC}"
+    echo -e "1. To run from anywhere, move dirty.py to your bin:"
     echo -e "${CYAN}mv dirty.py \$PREFIX/bin/dirty && chmod +x \$PREFIX/bin/dirty${NC}"
+
+    echo -e "\n2. For graphical output (X11), consider installing:"
+    echo -e "${CYAN}pkg install termux-api x11-repo${NC}"
+    echo -e "And a third-party X server app like ${BOLD}Termux-X11${NC} or ${BOLD}XServer XSDL${NC}."
+
+    echo -e "\n3. For VNC support (remote desktop):"
+    echo -e "${CYAN}pkg install tigervnc${NC}"
+    echo -e "Then run ${BOLD}vncserver${NC} and connect with a VNC client."
 fi

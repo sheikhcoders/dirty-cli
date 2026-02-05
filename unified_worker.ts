@@ -93,6 +93,8 @@ if __name__ == "__main__":
     main()
 `;
 const AI_DATA_ANALYZER_PY = `import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend for headless environment
 import matplotlib.pyplot as plt
 import os
 import sys
@@ -289,6 +291,34 @@ export default {
           output: result.stdout,
           stderr: result.stderr
         }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    if (url.pathname === '/read') {
+      const path = url.searchParams.get('path');
+      if (!path) {
+        return new Response(JSON.stringify({ error: "Missing path parameter" }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      try {
+        const fileContent = await sandbox.readFile(path);
+        let contentType = 'application/octet-stream';
+        if (path.endsWith('.png')) contentType = 'image/png';
+        else if (path.endsWith('.svg')) contentType = 'image/svg+xml';
+        else if (path.endsWith('.csv')) contentType = 'text/csv';
+        else if (path.endsWith('.json')) contentType = 'application/json';
+
+        return new Response(fileContent, {
+          headers: { 'Content-Type': contentType }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: "File not found or read error", message: (e as Error).message }), {
+          status: 404,
           headers: { 'Content-Type': 'application/json' }
         });
       }
