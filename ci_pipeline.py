@@ -2,10 +2,13 @@ import subprocess
 import os
 import json
 import sys
+import shlex
 
 def run_command(command, cwd=None):
     try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True, cwd=cwd)
+        if isinstance(command, str):
+            command = shlex.split(command)
+        result = subprocess.run(command, capture_output=True, text=True, cwd=cwd)
         return {
             "success": result.returncode == 0,
             "output": result.stdout + result.stderr
@@ -31,7 +34,7 @@ def main():
         subprocess.run(f"rm -rf {target_dir}", shell=True)
 
     # 1. Git Clone
-    clone_res = run_command(f"git clone {repo_url} {target_dir}")
+    clone_res = run_command(["git", "clone", repo_url, target_dir])
     if not clone_res["success"]:
         print(json.dumps({
             "repo_url": repo_url,

@@ -81,5 +81,8 @@ if [[ "$OSTYPE" == "linux-android"* ]]; then
 
     echo -e "\n3. For VNC support (remote desktop):"
     echo -e "${CYAN}pkg install tigervnc${NC}"
-    echo -e "Then run ${BOLD}vncserver${NC} and connect with a VNC client."
+    echo -e "Then run ${BOLD}vncserver -localhost${NC} and set ${BOLD}export DISPLAY=\":1\"${NC}."
+
+    echo -e "\n4. For a full Desktop (XFCE):"
+    echo -e "${CYAN}pkg install xfce4 xfce4-terminal netsurf${NC}"
 fi

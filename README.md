@@ -155,7 +155,7 @@ The `dirty.py` CLI provides a powerful interface to the edge services and includ
 
 ## Termux & Graphical Support (X11/VNC)
 
-Dirty CLI is optimized for Termux. While the edge environment is headless, you can view generated visualizations locally:
+Dirty CLI is optimized for Termux (Android 7.0+). While the edge environment is headless, you can view generated visualizations locally:
 
 ### 1. Enable X11 Repository
 To access X11 packages in Termux, run:
@@ -171,10 +171,46 @@ Use the `view` (or `v`) command to automatically fetch a file from the sandbox a
 *In Termux, this leverages `termux-open` to pass the file to an external image viewer.*
 
 ### 3. VNC Setup (Optional)
-For a full desktop experience in Termux:
-1. Install a VNC server: `pkg install tigervnc`
-2. Start the server: `vncserver`
-3. Connect using a VNC client application (e.g., VNC Viewer) to `localhost:1`.
+For a full graphical experience in Termux:
+1.  **Install TigerVNC**:
+    ```bash
+    pkg install tigervnc
+    ```
+2.  **Start VNC Server**:
+    ```bash
+    vncserver -localhost
+    ```
+    *On first launch, you will set a password (max 8 chars).*
+3.  **Set Display Variable**:
+    ```bash
+    export DISPLAY=":1"
+    ```
+4.  **Connect**:
+    Use a VNC Viewer app (e.g., **VNC Viewer** by RealVNC Limited) and connect to `127.0.0.1:5901`.
+
+### 4. XServer Setup
+If using an app like XServer XSDL:
+1.  Set the display:
+    ```bash
+    export DISPLAY=localhost:0
+    ```
+
+### 5. Desktop Environment (XFCE)
+To run a full desktop in Termux:
+1.  **Install XFCE**:
+    ```bash
+    pkg install xfce4
+    ```
+2.  **Configure VNC for XFCE**:
+    Edit `~/.vnc/xstartup`:
+    ```bash
+    #!/data/data/com.termux/files/usr/bin/sh
+    xfce4-session &
+    ```
+3.  **Install Browser & Terminal**:
+    ```bash
+    pkg install netsurf xfce4-terminal
+    ```
 
 ## Quick Setup
 
