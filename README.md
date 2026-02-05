@@ -150,6 +150,21 @@ The `dirty.py` CLI provides a powerful interface to the edge services and includ
 ./dirty.py bootstrap
 ```
 
+## Quick Setup
+
+Run the automated installer to set up the CLI and prepare the worker bridge:
+
+```bash
+chmod +x installer.sh
+./installer.sh
+```
+
+The installer will:
+1. Verify Python and npm dependencies.
+2. Set correct permissions for the CLI.
+3. Synchronize the Python logic with the Cloudflare Worker.
+4. Optionally download the SmolLM2 model.
+
 ## Deployment
 
 ### Prerequisites
