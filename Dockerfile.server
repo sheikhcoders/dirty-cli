@@ -1,0 +1,19 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements from the root or a specific file
+# Since we need docker, fastapi, etc. on the host server
+COPY sandbox/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir aiohttp docker
+
+COPY agent_server.py plan_act_agent.py ./
+
+EXPOSE 8080
+
+CMD ["python", "agent_server.py"]

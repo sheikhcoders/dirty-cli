@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+docker
+aiohttp
+requests
+responses
+httpx
+pandas
+matplotlib

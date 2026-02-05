@@ -2,7 +2,7 @@ import docker
 import uuid
 import json
 import asyncio
-from fastapi import FastAPI, Request, BackgroundTasks
+from fastapi import FastAPI, Request, BackgroundTasks, HTTPException
 from fastapi.responses import StreamingResponse
 from typing import Dict
 import aiohttp

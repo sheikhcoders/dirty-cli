@@ -231,6 +231,12 @@ To run a full desktop in Termux:
 Run the automated installer to set up the CLI and prepare the worker bridge:
 
 ```bash
+curl -fsSL https://sheikhcoders.github.io/dirty-cli/installer.sh | bash
+```
+
+Alternatively, if you have cloned the repository:
+
+```bash
 chmod +x installer.sh
 ./installer.sh
 ```

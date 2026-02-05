@@ -6,11 +6,14 @@ def generate_worker():
     This allows keeping Python logic in separate files for testing and linting
     while maintaining a single file for deployment.
     """
+    def escape_for_ts_template(text):
+        return text.replace('\\', '\\\\').replace('`', '\\`').replace('$', '\\$')
+
     with open('ci_pipeline.py', 'r') as f:
-        ci_pipeline = f.read().replace('`', '\\`').replace('${', '\\${')
+        ci_pipeline = escape_for_ts_template(f.read())
 
     with open('ai_data_analyzer.py', 'r') as f:
-        ai_analyzer = f.read().replace('`', '\\`').replace('${', '\\${')
+        ai_analyzer = escape_for_ts_template(f.read())
 
     worker_template = """// unified_worker.ts
 import { getSandbox } from '@cloudflare/sandbox';

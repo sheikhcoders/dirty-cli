@@ -15,6 +15,18 @@ NC='\033[0m' # No Color
 echo -e "${BOLD}${BLUE}=== Dirty CLI & Edge Services Installer ===${NC}"
 echo -e "${CYAN}Starting automatic setup...${NC}\n"
 
+# Check if we are in the dirty-cli directory
+if [ ! -f "dirty.py" ]; then
+    echo -e "${BLUE}Not in dirty-cli directory. Cloning repository...${NC}"
+    if command -v git >/dev/null 2>&1; then
+        git clone https://github.com/sheikhcoders/dirty-cli.git
+        cd dirty-cli || exit 1
+    else
+        echo -e "${RED}✗ git not found. Please install git or run this script from the dirty-cli directory.${NC}"
+        exit 1
+    fi
+fi
+
 # Function to check for command
 check_cmd() {
     command -v "$1" >/dev/null 2>&1
@@ -25,6 +37,8 @@ echo -e "${BOLD}[1/4] Checking Dependencies...${NC}"
 
 if check_cmd python3; then
     echo -e "${GREEN}✓ Python 3 is installed: $(python3 --version)${NC}"
+    echo -e "${CYAN}Installing Python dependencies...${NC}"
+    python3 -m pip install -r requirements.txt
 else
     echo -e "${RED}✗ Python 3 is not found. Please install it.${NC}"
     exit 1
@@ -64,7 +78,7 @@ fi
 
 # 4. Model Setup (Interactive)
 echo -e "\n${BOLD}[4/4] Model Setup${NC}"
-read -p "Do you want to download the SmolLM2-135M model now? (y/N): " -n 1 -r
+read -p "Do you want to download the SmolLM2-135M model now? (y/N): " -n 1 -r < /dev/tty
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     ./dirty.py setup
